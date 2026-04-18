@@ -1,0 +1,29 @@
+// Code generated. DO NOT EDIT.
+
+package main
+
+import (
+	"github.com/google/wire"
+    terraformprovidergithub "github-personal/angelokurtis/terraform-provider-github"
+
+{{- range .Providers }}
+    {{- if ne .PkgPath "github-personal/angelokurtis/terraform-provider-github/cmd/app" }}
+		{{ .PkgName }} {{ .PkgPath | quote }}
+	{{- end }}
+{{- end }}
+)
+
+// providers groups together all constructors needed to build the
+// application's core dependencies. It tells Wire how to instantiate key
+// components so they can be injected wherever required.
+var providers = wire.NewSet(
+	wire.Struct(new(terraformprovidergithub.Runner), "*"),
+{{- range $i, $prov := .Providers }}
+	{{- if ne $prov.PkgName "main" }}
+		{{- $first := printf "%c" (index $prov.Name 0) }}
+		{{- if eq $first (upper $first) }}
+			{{ $prov.PkgName }}.{{ $prov.Name }},
+		{{- end }}
+	{{- end }}
+{{- end }}
+)
