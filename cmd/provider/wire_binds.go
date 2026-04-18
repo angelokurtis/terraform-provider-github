@@ -1,7 +1,7 @@
 package main
 
 import (
-	internalprovider "github-personal/angelokurtis/terraform-provider-github/internal/provider"
+	intlprovider "github.com/angelokurtis/terraform-provider-github/internal/provider"
 
 	"github.com/google/wire"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -11,7 +11,7 @@ import (
 // It connects interfaces to their concrete implementations and
 // aggregates provider sets for dependency injection.
 var bindings = wire.NewSet(
-	wire.Bind(new(provider.Provider), new(*internalprovider.GitHub)),
+	wire.Bind(new(provider.Provider), new(*intlprovider.GitHub)),
 
 	// Include all application-level providers.
 	providers,

@@ -15,12 +15,12 @@ formatters:
           replacement: 'any'
 
     gofumpt:
-      module-path: github.com/angelokurtis/go-project-template
+      module-path: github.com/angelokurtis/terraform-provider-github
       extra-rules: true
 
     goimports:
       local-prefixes:
-        - github.com/angelokurtis/go-project-template
+        - github.com/angelokurtis/terraform-provider-github
 
   exclusions:
     warn-unused: true

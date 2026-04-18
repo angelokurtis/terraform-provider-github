@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log/slog"
 	"os"
@@ -9,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github-personal/angelokurtis/terraform-provider-github/internal/errors"
+	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/lmittmann/tint"
-	"go.uber.org/automaxprocs/maxprocs"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -29,6 +30,11 @@ func main() {
 
 // run manages app lifecycle, signal handling, and runner.
 func run(ctx context.Context) error {
+	var debug bool
+
+	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
+	flag.Parse()
+
 	ctx, stop := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
@@ -37,13 +43,7 @@ func run(ctx context.Context) error {
 		TimeFormat: time.Kitchen,
 	})))
 
-	undo, err := maxprocs.Set()
-	defer undo()
-	if err != nil {
-		return errors.Errorf("failed to set GOMAXPROCS: %w", err)
-	}
-
-	runner, cleanup, err := NewRunner(ctx)
+	pvr, cleanup, err := NewProvider(ctx)
 	if err != nil {
 		return err
 	}
@@ -52,12 +52,25 @@ func run(ctx context.Context) error {
 
 	g.Go(func() error {
 		defer stop()
-		return runner.Run(ctx)
+
+		return providerserver.Serve(ctx, func() provider.Provider {
+			return pvr
+		}, providerserver.ServeOpts{
+			// NOTE: This is not a typical Terraform Registry provider address,
+			// such as registry.terraform.io/hashicorp/hashicups. This specific
+			// provider address is used in these tutorials in conjunction with a
+			// specific Terraform CLI configuration for manual development testing
+			// of this provider.
+			Address: "hashicorp.com/edu/hashicups",
+			Debug:   debug,
+		})
 	})
 
 	g.Go(func() error {
 		defer cleanup()
+
 		<-ctx.Done()
+
 		return nil
 	})
 

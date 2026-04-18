@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var functionPattern = regexp.MustCompile(`^(github-personal/angelokurtis/terraform-provider-github|main\.)`)
+var functionPattern = regexp.MustCompile(`^(github.com/angelokurtis/terraform-provider-github|main\.)`)
 
 // Stack represents a call stack, a slice of function call program counter (PC) values
 type Stack []uintptr
@@ -35,6 +35,7 @@ func (s *Stack) String() string {
 
 	for more := true; more; {
 		var frame runtime.Frame
+
 		frame, more = frames.Next()
 
 		// Skip frames that don't match the function pattern

@@ -1,4 +1,4 @@
-module github-personal/angelokurtis/terraform-provider-github/mage
+module github.com/angelokurtis/terraform-provider-github/mage
 
 go 1.25.9
 

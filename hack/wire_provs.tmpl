@@ -8,7 +8,7 @@ import (
 	"github.com/google/wire"
 
 {{- range .Providers }}
-    {{- if ne .PkgPath "github-personal/angelokurtis/terraform-provider-github/cmd/provider" }}
+    {{- if ne .PkgPath "github.com/angelokurtis/terraform-provider-github/cmd/provider" }}
 		{{ .PkgName }} {{ .PkgPath | quote }}
 	{{- end }}
 {{- end }}
