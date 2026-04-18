@@ -5,7 +5,9 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
+	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var _ provider.Provider = &GitHub{}
@@ -17,26 +19,24 @@ func NewGitHub() *GitHub {
 }
 
 func (g *GitHub) Metadata(ctx context.Context, request provider.MetadataRequest, response *provider.MetadataResponse) {
-	//TODO implement me
-	panic("implement me")
+	response.TypeName = "hashicups"
+	response.Version = "dev"
 }
 
 func (g *GitHub) Schema(ctx context.Context, request provider.SchemaRequest, response *provider.SchemaResponse) {
-	//TODO implement me
-	panic("implement me")
+	response.Schema = schema.Schema{}
 }
 
 func (g *GitHub) Configure(ctx context.Context, request provider.ConfigureRequest, response *provider.ConfigureResponse) {
-	//TODO implement me
-	panic("implement me")
+	tflog.Info(ctx, "Configuring GitHub client")
+
+	// TODO: implement me
 }
 
 func (g *GitHub) DataSources(ctx context.Context) []func() datasource.DataSource {
-	//TODO implement me
-	panic("implement me")
+	return []func() datasource.DataSource{}
 }
 
 func (g *GitHub) Resources(ctx context.Context) []func() resource.Resource {
-	//TODO implement me
-	panic("implement me")
+	return []func() resource.Resource{}
 }
