@@ -1,10 +1,12 @@
+//go:build wireinject
+
 package main
 
 import (
-	intlprovider "github.com/angelokurtis/terraform-provider-github/internal/provider"
-
 	"github.com/google/wire"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
+
+	intlprovider "github.com/angelokurtis/terraform-provider-github/internal/provider"
 )
 
 // bindings defines the Wire bindings for the application layer.

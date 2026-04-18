@@ -5,8 +5,9 @@
 package main
 
 import (
-	provider "github.com/angelokurtis/terraform-provider-github/internal/provider"
 	"github.com/google/wire"
+
+	provider "github.com/angelokurtis/terraform-provider-github/internal/provider"
 )
 
 // providers groups together all constructors needed to build the

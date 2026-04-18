@@ -19,7 +19,7 @@ func NewGitHub() *GitHub {
 }
 
 func (g *GitHub) Metadata(ctx context.Context, request provider.MetadataRequest, response *provider.MetadataResponse) {
-	response.TypeName = "hashicups"
+	response.TypeName = "github"
 	response.Version = "dev"
 }
 
