@@ -18,16 +18,16 @@ func NewGitHub() *GitHub {
 	return &GitHub{}
 }
 
-func (g *GitHub) Metadata(ctx context.Context, request provider.MetadataRequest, response *provider.MetadataResponse) {
-	response.TypeName = "github"
-	response.Version = "dev"
+func (g *GitHub) Metadata(ctx context.Context, req provider.MetadataRequest, res *provider.MetadataResponse) {
+	res.TypeName = "github"
+	res.Version = "dev"
 }
 
-func (g *GitHub) Schema(ctx context.Context, request provider.SchemaRequest, response *provider.SchemaResponse) {
-	response.Schema = schema.Schema{}
+func (g *GitHub) Schema(ctx context.Context, req provider.SchemaRequest, res *provider.SchemaResponse) {
+	res.Schema = schema.Schema{}
 }
 
-func (g *GitHub) Configure(ctx context.Context, request provider.ConfigureRequest, response *provider.ConfigureResponse) {
+func (g *GitHub) Configure(ctx context.Context, req provider.ConfigureRequest, res *provider.ConfigureResponse) {
 	tflog.Info(ctx, "Configuring GitHub client")
 
 	// TODO: implement me
