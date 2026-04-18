@@ -7,7 +7,7 @@ import (
     terraformprovidergithub "github-personal/angelokurtis/terraform-provider-github"
 
 {{- range .Providers }}
-    {{- if ne .PkgPath "github-personal/angelokurtis/terraform-provider-github/cmd/app" }}
+    {{- if ne .PkgPath "github-personal/angelokurtis/terraform-provider-github/cmd/provider" }}
 		{{ .PkgName }} {{ .PkgPath | quote }}
 	{{- end }}
 {{- end }}

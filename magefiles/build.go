@@ -21,7 +21,7 @@ func (Build) Prod(ctx context.Context) error {
 		"GOARCH":      runtime.GOARCH,
 	}
 	ldFlags := []string{"-s", "-w"}
-	args := []string{"build", "-ldflags", strings.Join(ldFlags, " "), "-o", "bin/terraform-provider-github", "./cmd/app/"}
+	args := []string{"build", "-ldflags", strings.Join(ldFlags, " "), "-o", "bin/terraform-provider-github", "./cmd/provider/"}
 
 	return sh.RunWithV(env, "go", args...)
 }
@@ -30,7 +30,7 @@ func (Build) Prod(ctx context.Context) error {
 func (Build) Dev(ctx context.Context) error {
 	mg.CtxDeps(ctx, Clean, Generate.Wire)
 
-	args := []string{"build", "-o", "bin/terraform-provider-github", "./cmd/app/"}
+	args := []string{"build", "-o", "bin/terraform-provider-github", "./cmd/provider/"}
 
 	return sh.RunV("go", args...)
 }

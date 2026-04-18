@@ -44,7 +44,7 @@ func (Generate) Templates() error {
 		return fmt.Errorf("failed to parse template: %w", err)
 	}
 
-	out, err := os.Create("cmd/app/wire_provs.go")
+	out, err := os.Create("cmd/provider/wire_provs.go")
 	if err != nil {
 		return fmt.Errorf("failed to create output file: %w", err)
 	}
@@ -57,5 +57,5 @@ func (Generate) Templates() error {
 	}
 
 	// Run goimports to format and fix imports in the generated file.
-	return sh.RunV("go", "tool", "-modfile=magefiles/go.mod", "goimports", "-w", "cmd/app/wire_provs.go")
+	return sh.RunV("go", "tool", "-modfile=magefiles/go.mod", "goimports", "-w", "cmd/provider/wire_provs.go")
 }
