@@ -6,8 +6,8 @@ import (
 	"github.com/google/go-github/v84/github"
 )
 
-type AuthToken string
+type Token string
 
-func NewClient(httpClient *http.Client, authToken AuthToken) *github.Client {
-	return github.NewClient(httpClient).WithAuthToken(string(authToken))
+func NewClient(httpClient *http.Client, token Token) *github.Client {
+	return github.NewClient(httpClient).WithAuthToken(string(token))
 }
