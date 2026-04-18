@@ -6,6 +6,6 @@ import (
 	"github.com/google/wire"
 )
 
-var providers = wire.NewSet(
+var Providers = wire.NewSet(
 	NewGitHub,
 )

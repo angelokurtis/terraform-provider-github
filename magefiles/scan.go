@@ -77,7 +77,8 @@ type ProviderSet struct {
 // scanWireProviders finds all global wire.ProviderSet variables in the project.
 func scanWireProviders() ([]*ProviderSet, error) {
 	cfg := &packages.Config{
-		Mode: packages.NeedTypes | packages.NeedTypesInfo | packages.NeedSyntax | packages.NeedDeps | packages.NeedName,
+		Mode:       packages.NeedTypes | packages.NeedTypesInfo | packages.NeedSyntax | packages.NeedDeps | packages.NeedName,
+		BuildFlags: []string{"-tags=wireinject"},
 	}
 
 	// Load all packages in the module
