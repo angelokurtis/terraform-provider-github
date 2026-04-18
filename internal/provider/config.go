@@ -2,6 +2,6 @@ package provider
 
 import "github.com/hashicorp/terraform-plugin-framework/types"
 
-type Model struct {
+type Config struct {
 	Token types.String `tfsdk:"token"`
 }

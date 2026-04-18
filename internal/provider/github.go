@@ -24,13 +24,27 @@ func (g *GitHub) Metadata(ctx context.Context, req provider.MetadataRequest, res
 }
 
 func (g *GitHub) Schema(ctx context.Context, req provider.SchemaRequest, res *provider.SchemaResponse) {
-	res.Schema = schema.Schema{}
+	res.Schema = schema.Schema{
+		Attributes: map[string]schema.Attribute{
+			"token": schema.StringAttribute{
+				Required:    true,
+				Sensitive:   true,
+				Description: "GitHub API token used for authentication.",
+			},
+		},
+	}
 }
 
 func (g *GitHub) Configure(ctx context.Context, req provider.ConfigureRequest, res *provider.ConfigureResponse) {
 	tflog.Info(ctx, "Configuring GitHub client")
 
-	// TODO: implement me
+	config := new(Config)
+	diags := req.Config.Get(ctx, config)
+	res.Diagnostics.Append(diags...)
+
+	if res.Diagnostics.HasError() {
+		return
+	}
 }
 
 func (g *GitHub) DataSources(ctx context.Context) []func() datasource.DataSource {
