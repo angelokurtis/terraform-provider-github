@@ -11,6 +11,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"gopkg.in/dnaeon/go-vcr.v4/pkg/cassette"
 	"gopkg.in/dnaeon/go-vcr.v4/pkg/recorder"
+
+	intlhttp "github.com/angelokurtis/terraform-provider-github/internal/http"
 )
 
 func TestGitHub_Configure(t *testing.T) {
@@ -104,6 +106,7 @@ data "github_repositories" "test" {}
 	})
 
 	httpClient := r.GetDefaultClient()
+	httpClient.Transport = &intlhttp.RequestLogger{DefaultTransport: httpClient.Transport}
 	ProtoV6ProviderFactories := map[string]func() (tfprotov6.ProviderServer, error){
 		"github": providerserver.NewProtocol6WithError(NewGitHub(httpClient)),
 	}

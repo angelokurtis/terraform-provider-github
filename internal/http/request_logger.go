@@ -11,7 +11,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-type RequestLogger struct{}
+type RequestLogger struct {
+	DefaultTransport http.RoundTripper
+}
 
 func (rl *RequestLogger) RoundTrip(r *http.Request) (*http.Response, error) {
 	path, err := url.PathUnescape(r.URL.Path)
@@ -41,7 +43,7 @@ func (rl *RequestLogger) RoundTrip(r *http.Request) (*http.Response, error) {
 
 	startTime := time.Now()
 
-	resp, err := http.DefaultTransport.RoundTrip(r)
+	resp, err := rl.DefaultTransport.RoundTrip(r)
 	if err != nil {
 		fields["error"] = err.Error()
 		tflog.Debug(r.Context(), "HTTP request failed", fields)
