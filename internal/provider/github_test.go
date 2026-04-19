@@ -90,6 +90,7 @@ data "github_repositories" "test" {}
 	r, err := recorder.New(
 		filepath.Join("testdata", strings.ReplaceAll(t.Name(), "/", "_")),
 		recorder.WithHook(hook, recorder.AfterCaptureHook),
+		recorder.WithMatcher(cassette.NewDefaultMatcher(cassette.WithIgnoreAuthorization())),
 	)
 	if err != nil {
 		t.Fatal(err)
