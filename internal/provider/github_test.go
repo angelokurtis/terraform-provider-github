@@ -76,19 +76,12 @@ data "github_repositories" "test" {}
 
 	hook := func(i *cassette.Interaction) error {
 		if auth := i.Request.Headers.Get("Authorization"); auth != "" {
+			value := "****"
 			if strings.HasPrefix(strings.ToLower(auth), "bearer ") {
-				i.Request.Headers.Set("Authorization", "Bearer ****")
-			} else {
-				i.Request.Headers.Set("Authorization", "REDACTED")
+				value = "Bearer ****"
 			}
-		}
 
-		if auth := i.Response.Headers.Get("Authorization"); auth != "" {
-			if strings.HasPrefix(strings.ToLower(auth), "bearer ") {
-				i.Response.Headers.Set("Authorization", "Bearer ****")
-			} else {
-				i.Response.Headers.Set("Authorization", "REDACTED")
-			}
+			i.Request.Headers.Set("Authorization", value)
 		}
 
 		return nil
