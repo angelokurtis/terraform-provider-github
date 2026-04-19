@@ -59,7 +59,17 @@ func (g *GitHub) Configure(ctx context.Context, req provider.ConfigureRequest, r
 		return
 	}
 
-	token := intlgithub.Token(config.Token.ValueString())
+	tokenValue := config.Token.ValueString()
+	if tokenValue == "" {
+		res.Diagnostics.AddError(
+			"Empty GitHub Token",
+			"The provider cannot create the GitHub client because the token is an empty string.",
+		)
+
+		return
+	}
+
+	token := intlgithub.Token(tokenValue)
 	httpClient := http.NewClient()
 	githubClient := intlgithub.NewClient(httpClient, token)
 

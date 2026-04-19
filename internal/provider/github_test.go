@@ -14,14 +14,73 @@ var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServe
 }
 
 func TestGitHub_Configure(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{Config: `provider "github" {}`},
-			{
-				Config:      `data "github_repositories" "_" {}`,
-				ExpectError: regexp.MustCompile(`The argument "token" is required`),
+	tests := []struct {
+		name  string
+		steps []resource.TestStep
+	}{
+		{
+			name: "missing token",
+			steps: []resource.TestStep{
+				{
+					Config: `
+provider "github" {}
+data "github_repositories" "_" {}
+`,
+					ExpectError: regexp.MustCompile(`The argument "token" is required`),
+				},
 			},
 		},
-	})
+		{
+			name: "null token",
+			steps: []resource.TestStep{
+				{
+					Config: `
+provider "github" {
+  token = null
+}
+data "github_repositories" "_" {}
+`,
+					ExpectError: regexp.MustCompile(`Missing Configuration for Required Attribute`),
+				},
+			},
+		},
+		{
+			name: "empty token",
+			steps: []resource.TestStep{
+				{
+					Config: `
+provider "github" {
+  token = ""
+}
+data "github_repositories" "_" {}
+`,
+					ExpectError: regexp.MustCompile("Empty GitHub Token"),
+				},
+			},
+		},
+		{
+			name: "valid token only",
+			steps: []resource.TestStep{
+				{
+					Config: `
+provider "github" {
+  token = "dummy-token"
+}
+
+data "github_repositories" "test" {}
+`,
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			resource.Test(t, resource.TestCase{
+				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				Steps:                    tc.steps,
+			})
+		})
+	}
 }
