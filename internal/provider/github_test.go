@@ -1,12 +1,15 @@
 package provider
 
 import (
+	"path/filepath"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"gopkg.in/dnaeon/go-vcr.v4/pkg/recorder"
 )
 
 func TestGitHub_Configure(t *testing.T) {
@@ -70,8 +73,19 @@ data "github_repositories" "test" {}
 		},
 	}
 
+	r, err := recorder.New(filepath.Join("testdata", strings.ReplaceAll(t.Name(), "/", "_")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := r.Stop(); err != nil {
+			t.Error(err)
+		}
+	})
+
+	httpClient := r.GetDefaultClient()
 	ProtoV6ProviderFactories := map[string]func() (tfprotov6.ProviderServer, error){
-		"github": providerserver.NewProtocol6WithError(NewGitHub()),
+		"github": providerserver.NewProtocol6WithError(NewGitHub(httpClient)),
 	}
 
 	for _, tc := range tests {

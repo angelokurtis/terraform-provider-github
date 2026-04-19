@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -11,15 +12,16 @@ import (
 
 	intldatasource "github.com/angelokurtis/terraform-provider-github/internal/datasource"
 	intlgithub "github.com/angelokurtis/terraform-provider-github/internal/github"
-	"github.com/angelokurtis/terraform-provider-github/internal/http"
 )
 
 var _ provider.Provider = &GitHub{}
 
-type GitHub struct{}
+type GitHub struct {
+	httpClient *http.Client
+}
 
-func NewGitHub() *GitHub {
-	return &GitHub{}
+func NewGitHub(httpClient *http.Client) *GitHub {
+	return &GitHub{httpClient: httpClient}
 }
 
 func (g *GitHub) Metadata(ctx context.Context, req provider.MetadataRequest, res *provider.MetadataResponse) {
@@ -70,8 +72,7 @@ func (g *GitHub) Configure(ctx context.Context, req provider.ConfigureRequest, r
 	}
 
 	token := intlgithub.Token(tokenValue)
-	httpClient := http.NewClient()
-	githubClient := intlgithub.NewClient(httpClient, token)
+	githubClient := intlgithub.NewClient(g.httpClient, token)
 
 	res.DataSourceData = githubClient
 	res.ResourceData = githubClient
