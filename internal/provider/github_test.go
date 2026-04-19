@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 	"github.com/hashicorp/terraform-plugin-go/tfprotov6"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"gopkg.in/dnaeon/go-vcr.v4/pkg/cassette"
 	"gopkg.in/dnaeon/go-vcr.v4/pkg/recorder"
 )
 
@@ -73,10 +74,26 @@ data "github_repositories" "test" {}
 		},
 	}
 
-	r, err := recorder.New(filepath.Join("testdata", strings.ReplaceAll(t.Name(), "/", "_")))
+	hook := func(i *cassette.Interaction) error {
+		if auth := i.Request.Headers.Get("Authorization"); auth != "" {
+			i.Request.Headers.Set("Authorization", "REDACTED")
+		}
+
+		if auth := i.Response.Headers.Get("Authorization"); auth != "" {
+			i.Response.Headers.Set("Authorization", "REDACTED")
+		}
+
+		return nil
+	}
+
+	r, err := recorder.New(
+		filepath.Join("testdata", strings.ReplaceAll(t.Name(), "/", "_")),
+		recorder.WithHook(hook, recorder.AfterCaptureHook),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	t.Cleanup(func() {
 		if err := r.Stop(); err != nil {
 			t.Error(err)
