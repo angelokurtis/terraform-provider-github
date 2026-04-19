@@ -16,6 +16,8 @@ var (
 
 type RepositoryModel struct {
 	ID    types.String   `tfsdk:"id"`
+	User  types.String   `tfsdk:"user"`
+	Org   types.String   `tfsdk:"org"`
 	Repos []types.String `tfsdk:"repos"`
 }
 
@@ -36,7 +38,7 @@ func (r *Repository) Configure(ctx context.Context, req datasource.ConfigureRequ
 	if !ok {
 		res.Diagnostics.AddError(
 			"Unexpected Data Source Configure Type",
-			"Expected *provider.GitHubClient",
+			"Expected *github.Client",
 		)
 
 		return
@@ -53,8 +55,15 @@ func (r *Repository) Schema(ctx context.Context, req datasource.SchemaRequest, r
 	res.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
-				Computed:    true,
-				Description: "Static ID for this data source.",
+				Computed: true,
+			},
+			"user": schema.StringAttribute{
+				Optional:    true,
+				Description: "GitHub username to list repositories for.",
+			},
+			"org": schema.StringAttribute{
+				Optional:    true,
+				Description: "GitHub organization to list repositories for.",
 			},
 			"repos": schema.ListAttribute{
 				Computed:    true,
@@ -66,42 +75,100 @@ func (r *Repository) Schema(ctx context.Context, req datasource.SchemaRequest, r
 }
 
 func (r *Repository) Read(ctx context.Context, req datasource.ReadRequest, res *datasource.ReadResponse) {
-	var state RepositoryModel
+	config := new(RepositoryModel)
+	diags := req.Config.Get(ctx, config)
+	res.Diagnostics.Append(diags...)
 
-	// List repositories for the authenticated user
-	opt := &github.RepositoryListByAuthenticatedUserOptions{
-		ListOptions: github.ListOptions{PerPage: 100},
+	if res.Diagnostics.HasError() {
+		return
+	}
+
+	if !config.User.IsNull() && !config.Org.IsNull() {
+		res.Diagnostics.AddError(
+			"Invalid configuration",
+			"Only one of 'user' or 'org' can be specified.",
+		)
+
+		return
 	}
 
 	var allRepos []types.String
 
-	for {
-		repos, resp, err := r.githubClient.Repositories.ListByAuthenticatedUser(ctx, opt)
-		if err != nil {
-			res.Diagnostics.AddError(
-				"Unable to list repositories",
-				err.Error(),
-			)
+	listOpts := &github.ListOptions{PerPage: 100}
 
-			return
-		}
-
-		for _, repo := range repos {
-			if repo.Name != nil {
-				allRepos = append(allRepos, types.StringValue(*repo.Name))
+	switch {
+	case !config.User.IsNull():
+		opt := &github.RepositoryListByUserOptions{ListOptions: *listOpts}
+		for {
+			repos, resp, err := r.githubClient.Repositories.ListByUser(ctx, config.User.ValueString(), opt)
+			if err != nil {
+				res.Diagnostics.AddError("Unable to list user repositories", err.Error())
+				return
 			}
-		}
 
-		if resp.NextPage == 0 {
-			break
-		}
+			for _, repo := range repos {
+				if repo.Name != nil {
+					allRepos = append(allRepos, types.StringValue(*repo.Name))
+				}
+			}
 
-		opt.Page = resp.NextPage
+			if resp.NextPage == 0 {
+				break
+			}
+
+			opt.Page = resp.NextPage
+		}
+	case !config.Org.IsNull():
+		opt := &github.RepositoryListByOrgOptions{ListOptions: *listOpts}
+		for {
+			repos, resp, err := r.githubClient.Repositories.ListByOrg(ctx, config.Org.ValueString(), opt)
+			if err != nil {
+				res.Diagnostics.AddError("Unable to list organization repositories", err.Error())
+				return
+			}
+
+			for _, repo := range repos {
+				if repo.Name != nil {
+					allRepos = append(allRepos, types.StringValue(*repo.Name))
+				}
+			}
+
+			if resp.NextPage == 0 {
+				break
+			}
+
+			opt.Page = resp.NextPage
+		}
+	default:
+		opt := &github.RepositoryListByAuthenticatedUserOptions{
+			ListOptions: *listOpts,
+		}
+		for {
+			repos, resp, err := r.githubClient.Repositories.ListByAuthenticatedUser(ctx, opt)
+			if err != nil {
+				res.Diagnostics.AddError("Unable to list authenticated user repositories", err.Error())
+				return
+			}
+
+			for _, repo := range repos {
+				if repo.Name != nil {
+					allRepos = append(allRepos, types.StringValue(*repo.Name))
+				}
+			}
+
+			if resp.NextPage == 0 {
+				break
+			}
+
+			opt.Page = resp.NextPage
+		}
 	}
 
+	state := new(RepositoryModel)
 	state.ID = types.StringValue("repositories")
+	state.User = config.User
+	state.Org = config.Org
 	state.Repos = allRepos
-
-	diags := res.State.Set(ctx, &state)
+	diags = res.State.Set(ctx, &state)
 	res.Diagnostics.Append(diags...)
 }
