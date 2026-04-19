@@ -75,13 +75,15 @@ data "github_repositories" "test" {}
 	}
 
 	hook := func(i *cassette.Interaction) error {
-		if auth := i.Request.Headers.Get("Authorization"); auth != "" {
-			value := "****"
-			if strings.HasPrefix(strings.ToLower(auth), "bearer ") {
-				value = "Bearer ****"
-			}
+		for k, v := range i.Request.Headers {
+			if strings.EqualFold(k, "Authorization") && len(v) > 0 {
+				value := "dummy-token"
+				if strings.HasPrefix(strings.ToLower(v[0]), "bearer ") {
+					value = "Bearer dummy-token"
+				}
 
-			i.Request.Headers.Set("Authorization", value)
+				i.Request.Headers[k] = []string{value}
+			}
 		}
 
 		return nil
@@ -90,7 +92,6 @@ data "github_repositories" "test" {}
 	r, err := recorder.New(
 		filepath.Join("testdata", strings.ReplaceAll(t.Name(), "/", "_")),
 		recorder.WithHook(hook, recorder.AfterCaptureHook),
-		recorder.WithMatcher(cassette.NewDefaultMatcher(cassette.WithIgnoreAuthorization())),
 	)
 	if err != nil {
 		t.Fatal(err)
