@@ -9,10 +9,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-var testAccProtoV6ProviderFactories = map[string]func() (tfprotov6.ProviderServer, error){
-	"github": providerserver.NewProtocol6WithError(NewGitHub()),
-}
-
 func TestGitHub_Configure(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -74,11 +70,15 @@ data "github_repositories" "test" {}
 		},
 	}
 
+	ProtoV6ProviderFactories := map[string]func() (tfprotov6.ProviderServer, error){
+		"github": providerserver.NewProtocol6WithError(NewGitHub()),
+	}
+
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			resource.Test(t, resource.TestCase{
-				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+				ProtoV6ProviderFactories: ProtoV6ProviderFactories,
 				Steps:                    tc.steps,
 			})
 		})
