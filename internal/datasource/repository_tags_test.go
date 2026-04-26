@@ -37,6 +37,14 @@ data "github_repository_tags" "test" {
 						resource.TestCheckResourceAttrSet("data.github_repository_tags.test", "tags.#"),
 						resource.TestCheckResourceAttrSet("data.github_repository_tags.test", "tags.0.name"),
 						resource.TestCheckResourceAttrSet("data.github_repository_tags.test", "tags.0.sha"),
+						resource.TestCheckTypeSetElemNestedAttrs(
+							"data.github_repository_tags.test",
+							"tags.*",
+							map[string]string{
+								"name": "v1.36.0",
+								"sha":  "ecf6decece6a6de25a57aad9ba90b6ce580f6f78",
+							},
+						),
 					),
 				},
 			},
