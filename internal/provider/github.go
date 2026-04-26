@@ -81,6 +81,7 @@ func (g *GitHub) Configure(ctx context.Context, req provider.ConfigureRequest, r
 func (g *GitHub) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		intldatasource.NewRepository,
+		intldatasource.NewTag,
 	}
 }
 
