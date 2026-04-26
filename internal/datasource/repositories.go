@@ -15,7 +15,6 @@ var (
 )
 
 type RepositoryModel struct {
-	ID    types.String   `tfsdk:"id"`
 	User  types.String   `tfsdk:"user"`
 	Org   types.String   `tfsdk:"org"`
 	Repos []types.String `tfsdk:"repos"`
@@ -54,9 +53,6 @@ func (r *Repository) Metadata(ctx context.Context, req datasource.MetadataReques
 func (r *Repository) Schema(ctx context.Context, req datasource.SchemaRequest, res *datasource.SchemaResponse) {
 	res.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-			},
 			"user": schema.StringAttribute{
 				Optional:    true,
 				Description: "GitHub username to list repositories for.",
@@ -165,7 +161,6 @@ func (r *Repository) Read(ctx context.Context, req datasource.ReadRequest, res *
 	}
 
 	state := new(RepositoryModel)
-	state.ID = types.StringValue("repositories")
 	state.User = config.User
 	state.Org = config.Org
 	state.Repos = allRepos

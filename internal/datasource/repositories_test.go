@@ -1,8 +1,7 @@
-package provider_test
+package datasource_test
 
 import (
 	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -16,53 +15,13 @@ import (
 	"github.com/angelokurtis/terraform-provider-github/internal/provider"
 )
 
-func TestGitHub_Configure(t *testing.T) {
+func TestRepository_Read(t *testing.T) {
 	tests := []struct {
 		name  string
 		steps []resource.TestStep
 	}{
 		{
-			name: "missing token",
-			steps: []resource.TestStep{
-				{
-					Config: `
-provider "github" {}
-data "github_repositories" "_" {}
-`,
-					ExpectError: regexp.MustCompile(`The argument "token" is required`),
-				},
-			},
-		},
-		{
-			name: "null token",
-			steps: []resource.TestStep{
-				{
-					Config: `
-provider "github" {
-  token = null
-}
-data "github_repositories" "_" {}
-`,
-					ExpectError: regexp.MustCompile(`Missing Configuration for Required Attribute`),
-				},
-			},
-		},
-		{
-			name: "empty token",
-			steps: []resource.TestStep{
-				{
-					Config: `
-provider "github" {
-  token = ""
-}
-data "github_repositories" "_" {}
-`,
-					ExpectError: regexp.MustCompile("Empty GitHub Token"),
-				},
-			},
-		},
-		{
-			name: "valid token only",
+			name: "",
 			steps: []resource.TestStep{
 				{
 					Config: `
@@ -70,8 +29,22 @@ provider "github" {
   token = "dummy-token"
 }
 
-data "github_repositories" "test" {}
+data "github_repositories" "test" {
+}
 `,
+					Check: resource.ComposeTestCheckFunc(
+						resource.TestCheckResourceAttr("data.github_repositories.test", "repos.#", "2"),
+						resource.TestCheckTypeSetElemAttr(
+							"data.github_repositories.test",
+							"repos.*",
+							"taco-driven-development",
+						),
+						resource.TestCheckTypeSetElemAttr(
+							"data.github_repositories.test",
+							"repos.*",
+							"git-push-and-pray",
+						),
+					),
 				},
 			},
 		},
