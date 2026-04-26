@@ -28,7 +28,6 @@ func TestRepository_Read(t *testing.T) {
 provider "github" {
   token = "dummy-token"
 }
-
 data "github_repositories" "test" {
 }
 `,
@@ -49,7 +48,6 @@ data "github_repositories" "test" {
 			},
 		},
 	}
-
 	hook := func(i *cassette.Interaction) error {
 		for k, v := range i.Request.Headers {
 			if strings.EqualFold(k, "Authorization") && len(v) > 0 {

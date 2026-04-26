@@ -188,7 +188,6 @@ func (r *Repository) Read(ctx context.Context, req datasource.ReadRequest, res *
 	state.User = config.User
 	state.Org = config.Org
 	state.Repos = repoValues
-
 	diags = res.State.Set(ctx, state)
 	res.Diagnostics.Append(diags...)
 }
@@ -220,7 +219,6 @@ func NewRepositoryItem(repo *github.Repository) RepositoryItem {
 		Archived:      types.BoolValue(repo.GetArchived()),
 		Visibility:    types.StringValue(repo.GetVisibility()),
 	}
-
 	if repo.CreatedAt != nil {
 		item.CreatedAt = types.StringValue(repo.CreatedAt.Time.Format(time.RFC3339))
 	} else {
