@@ -29,8 +29,8 @@ provider "github" {
   token = "dummy-token"
 }
 data "github_repository_tags" "test" {
-  owner = "angelokurtis"
-  repo  = "git-push-and-pray"
+  owner = "kubernetes"
+  repo  = "kubernetes"
 }
 `,
 					Check: resource.ComposeTestCheckFunc(
