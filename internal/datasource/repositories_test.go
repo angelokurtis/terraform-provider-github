@@ -34,15 +34,15 @@ data "github_repositories" "test" {
 `,
 					Check: resource.ComposeTestCheckFunc(
 						resource.TestCheckResourceAttr("data.github_repositories.test", "repos.#", "2"),
-						resource.TestCheckTypeSetElemAttr(
+						resource.TestCheckResourceAttr(
 							"data.github_repositories.test",
-							"repos.*",
-							"taco-driven-development",
-						),
-						resource.TestCheckTypeSetElemAttr(
-							"data.github_repositories.test",
-							"repos.*",
+							"repos.0.name",
 							"git-push-and-pray",
+						),
+						resource.TestCheckResourceAttr(
+							"data.github_repositories.test",
+							"repos.1.name",
+							"taco-driven-development",
 						),
 					),
 				},
