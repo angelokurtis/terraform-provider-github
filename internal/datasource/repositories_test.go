@@ -21,7 +21,7 @@ func TestRepository_Read(t *testing.T) {
 		steps []resource.TestStep
 	}{
 		{
-			name: "",
+			name: "should return all repositories with correct names",
 			steps: []resource.TestStep{
 				{
 					Config: `

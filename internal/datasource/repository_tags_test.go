@@ -21,7 +21,7 @@ func TestRepositoryTags_Read(t *testing.T) {
 		steps []resource.TestStep
 	}{
 		{
-			name: "basic",
+			name: "should return repository tags with name and sha",
 			steps: []resource.TestStep{
 				{
 					Config: `
