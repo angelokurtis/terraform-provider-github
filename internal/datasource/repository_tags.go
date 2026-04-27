@@ -79,29 +79,30 @@ func (t *RepositoryTag) Read(ctx context.Context, req datasource.ReadRequest, re
 		return
 	}
 
+	tags, err := fetchAll(
+		ctx,
+		func(ctx context.Context, page int) ([]*github.RepositoryTag, *github.Response, error) {
+			owner := config.Owner.ValueString()
+			repo := config.Repo.ValueString()
+			return t.githubClient.Repositories.ListTags(ctx, owner, repo, &github.ListOptions{
+				PerPage: 100,
+				Page:    page,
+			})
+		},
+	)
+	if err != nil {
+		res.Diagnostics.AddError("Unable to list repository tags", err.Error())
+		return
+	}
+
 	var items []TagItem
 
-	listOpts := &github.ListOptions{PerPage: 100}
-	for {
-		tags, resp, err := t.githubClient.Repositories.ListTags(ctx, config.Owner.ValueString(), config.Repo.ValueString(), listOpts)
-		if err != nil {
-			res.Diagnostics.AddError("Unable to list repository tags", err.Error())
-			return
+	for _, tag := range tags {
+		item := TagItem{
+			Name: types.StringPointerValue(tag.Name),
+			SHA:  types.StringPointerValue(tag.Commit.SHA),
 		}
-
-		for _, tag := range tags {
-			item := TagItem{
-				Name: types.StringPointerValue(tag.Name),
-				SHA:  types.StringPointerValue(tag.Commit.SHA),
-			}
-			items = append(items, item)
-		}
-
-		if resp.NextPage == 0 {
-			break
-		}
-
-		listOpts.Page = resp.NextPage
+		items = append(items, item)
 	}
 
 	tagValues, diags := types.ListValueFrom(ctx, types.ObjectType{
